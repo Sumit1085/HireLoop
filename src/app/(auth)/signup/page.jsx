@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { Input } from "@heroui/react";
-import { Button } from '@heroui/react';
-// import { Divider } from "@heroui/divider";
+import { Button } from "@heroui/react";
 import { Person, At, Lock, Eye, EyeSlash } from "@gravity-ui/icons";
-import { authClient } from "@/lib/auth-client"; // your better-auth client
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function SignupPage() {
+  const router = useRouter();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,41 +25,43 @@ export default function SignupPage() {
     setIsLoading(true);
     setError("");
 
-    try {
-      await authClient.signUp.email({
-        name: form.name,
-        email: form.email,
-        password: form.password,
-      });
-      // Redirect handled by better-auth or do it manually:
-      // router.push("/dashboard");
-    } catch (err) {
-      setError(err?.message || "Something went wrong. Please try again.");
-    } finally {
+    const { error } = await authClient.signUp.email({
+      name: form.name,
+      email: form.email,
+      password: form.password,
+    });
+
+    if (error) {
+      setError(error.message || "Something went wrong. Please try again.");
       setIsLoading(false);
+      return;
     }
+
+    router.push("/");
+    setIsLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-[#0F1117] flex items-center justify-center px-4 ">
-      {/* Ambient glow */}
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 overflow-hidden"
-      >
+    <div className="min-h-screen bg-[#0F1117] flex items-center justify-center px-4">
+      <div aria-hidden className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-indigo-600/10 blur-[120px]" />
         <div className="absolute -bottom-40 -right-20 w-[500px] h-[500px] rounded-full bg-violet-700/10 blur-[120px]" />
       </div>
 
       <div className="relative w-full max-w-[440px]">
-        {/* Logo / wordmark */}
-        <div className="mb-8 text-center">
-          <span className="inline-block text-2xl font-semibold tracking-tight text-white">
-            Hire<span className="text-indigo-400">Loop</span>
-          </span>
+        <div className="mb-8 flex justify-center">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 bg-purple-600 rounded-md flex items-center justify-center flex-shrink-0 group-hover:bg-purple-500 transition-colors">
+              <svg className="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+            <span className="text-white font-semibold text-sm leading-tight">
+              Hire<br />Loop
+            </span>
+          </Link>
         </div>
 
-        {/* Card */}
         <div className="relative rounded-2xl p-[1px] bg-gradient-to-br from-indigo-500/30 via-transparent to-violet-500/20">
           <div className="rounded-2xl bg-[#161B27] px-8 py-10">
             <h1 className="text-[1.6rem] font-semibold text-white leading-tight tracking-tight">
@@ -65,15 +69,12 @@ export default function SignupPage() {
             </h1>
             <p className="mt-1.5 text-sm text-slate-400">
               Already have one?{" "}
-              <a
-                href="/login"
-                className="text-indigo-400 hover:text-indigo-300 transition-colors"
-              >
+              <Link href="/signin" className="text-indigo-400 hover:text-indigo-300 transition-colors">
                 Sign in
-              </a>
+              </Link>
             </p>
 
-            {/* <Divider className="my-6 bg-white/5" /> */}
+            <div className="my-6 h-px bg-white/5" />
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               {/* Name */}
@@ -135,11 +136,7 @@ export default function SignupPage() {
                     className="text-slate-500 hover:text-slate-300 transition-colors focus:outline-none"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
-                    {showPassword ? (
-                      <EyeSlash width={16} height={16} />
-                    ) : (
-                      <Eye width={16} height={16} />
-                    )}
+                    {showPassword ? <EyeSlash width={16} height={16} /> : <Eye width={16} height={16} />}
                   </button>
                 }
                 classNames={{
@@ -150,37 +147,27 @@ export default function SignupPage() {
                 }}
               />
 
-              {/* Error */}
               {error && (
                 <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
                   {error}
                 </p>
               )}
 
-              {/* Submit */}
               <Button
                 type="submit"
                 isLoading={isLoading}
                 className="mt-1 w-full h-11 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium text-sm transition-colors"
-                spinner={
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                }
+                spinner={<span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
               >
                 {isLoading ? "Creating account…" : "Create account"}
               </Button>
             </form>
 
-            {/* Terms */}
             <p className="mt-5 text-center text-xs text-slate-600 leading-relaxed">
               By signing up you agree to our{" "}
-              <a href="/terms" className="text-slate-400 hover:text-white transition-colors underline underline-offset-2">
-                Terms
-              </a>{" "}
+              <Link href="/terms" className="text-slate-400 hover:text-white transition-colors underline underline-offset-2">Terms</Link>{" "}
               and{" "}
-              <a href="/privacy" className="text-slate-400 hover:text-white transition-colors underline underline-offset-2">
-                Privacy Policy
-              </a>
-              .
+              <Link href="/privacy" className="text-slate-400 hover:text-white transition-colors underline underline-offset-2">Privacy Policy</Link>.
             </p>
           </div>
         </div>
