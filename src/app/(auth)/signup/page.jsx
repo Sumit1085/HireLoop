@@ -7,6 +7,8 @@ import { Person, At, Lock, Eye, EyeSlash } from "@gravity-ui/icons";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Description, Label, Radio, RadioGroup } from "@heroui/react";
+
 
 export default function SignupPage() {
   const router = useRouter();
@@ -14,6 +16,7 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [role, setRole] = useState('Job Seeker')
 
   const handleChange = (field) => (e) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -29,6 +32,7 @@ export default function SignupPage() {
       name: form.name,
       email: form.email,
       password: form.password,
+      role
     });
 
     if (error) {
@@ -152,6 +156,30 @@ export default function SignupPage() {
                   {error}
                 </p>
               )}
+              <div className="flex flex-col gap-4 ">
+                <Label className="text-white">Select Your Role</Label>
+                <RadioGroup defaultValue="Job Seeker" name="plan-orientation" orientation="horizontal" onChange={value => setRole(value)}>
+                  <Radio value="Job Seeker">
+                    <Radio.Control>
+                      <Radio.Indicator />
+                    </Radio.Control>
+                    <Radio.Content>
+                      <Label className="text-white">Job Seeker</Label>
+                      
+                    </Radio.Content>
+                  </Radio>
+                  <Radio value="Job Recruiter">
+                    <Radio.Control>
+                      <Radio.Indicator />
+                    </Radio.Control>
+                    <Radio.Content>
+                      <Label className="text-white">Job Recruiter</Label>
+                      
+                    </Radio.Content>
+                  </Radio>
+                  
+                </RadioGroup>
+              </div>
 
               <Button
                 type="submit"

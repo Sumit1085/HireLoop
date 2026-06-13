@@ -8,11 +8,11 @@ import { userAc } from "better-auth/plugins/admin/access";
 import { Button } from "@heroui/react";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { data: session } = useSession()
+  const { data: session, isPending } = useSession()
 
   const user = session?.user
 
-  console.log(session)
+  console.log(session, isPending)
 
   const handleSignout = async() => {
     await authClient.signOut();
@@ -53,7 +53,7 @@ export default function Navbar() {
         {/* Desktop Right Side */}
         <div className="hidden md:flex items-center gap-2">
           <div className="w-px h-5 bg-white/20 mr-2" />
-          {user ? (
+          {isPending ? <h2>Loading....</h2>: user ? (
             <>
               <p className="text-white">Hi, {user.name}</p>
               <Button onClick={handleSignout} variant="danger-soft">SignOut</Button>
